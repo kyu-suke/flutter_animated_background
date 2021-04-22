@@ -23,9 +23,9 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key? key, this.title}) : super(key: key);
 
-  final String title;
+  final String? title;
 
   @override
   _MyHomePageState createState() => new _MyHomePageState();
@@ -35,7 +35,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   static const numBehaviours = 6;
 
   // Particles
-  ParticleType _particleType = ParticleType.Image;
+  ParticleType? _particleType = ParticleType.Image;
   Image _image = Image.asset('assets/images/star_stroke.png');
 
   ParticleOptions particleOptions = ParticleOptions(
@@ -66,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
   // General Variables
   int _behaviourIndex = 0;
-  Behaviour _behaviour;
+  Behaviour? _behaviour;
 
   bool _showSettings = false;
 
@@ -74,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(widget.title!),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.settings_input_component),
@@ -100,7 +100,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     );
   }
 
-  void _onTypeChange(ParticleType type) {
+  void _onTypeChange(ParticleType? type) {
     setState(() {
       _particleType = type;
       if (_particleType == ParticleType.Image) {
@@ -367,11 +367,11 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                 RaisedButton(
                   child: Text('Clipboard'),
                   onPressed: () {
-                    Clipboard.getData('text/plain').then((ClipboardData value) {
+                    Clipboard.getData('text/plain').then((ClipboardData? value) {
                       if (value == null)
                         return;
                       setState(() {
-                        _image = Image.network(value.text);
+                        _image = Image.network(value.text!);
                         particleOptions = particleOptions.copyWith(
                           image: _image,
                         );
@@ -392,7 +392,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               children: <Widget>[
                 Checkbox(
                   onChanged: (value) => setState(() {
-                    particlePaint.style = value ? PaintingStyle.fill : PaintingStyle.stroke;
+                    particlePaint.style = value! ? PaintingStyle.fill : PaintingStyle.stroke;
                   }),
                   value: particlePaint.style == PaintingStyle.fill,
                 ),
@@ -651,18 +651,18 @@ class RainParticleBehaviour extends RandomParticleBehaviour {
 
   RainParticleBehaviour({
     ParticleOptions options = const ParticleOptions(),
-    Paint paint,
+    Paint? paint,
     this.enabled = true,
   }) : assert(options != null),
         super(options: options, paint: paint);
 
   @override
   void initPosition(Particle p) {
-    p.cx = random.nextDouble() * size.width;
+    p.cx = random.nextDouble() * size!.width;
     if (p.cy == 0.0)
-      p.cy = random.nextDouble() * size.height;
+      p.cy = random.nextDouble() * size!.height;
     else
-      p.cy = random.nextDouble() * size.width * 0.2;
+      p.cy = random.nextDouble() * size!.width * 0.2;
   }
 
   @override
@@ -691,7 +691,7 @@ class RainParticleBehaviour extends RandomParticleBehaviour {
   void _updateParticles(BuildContext context, Offset offsetGlobal) {
     RenderBox renderBox = context.findRenderObject() as RenderBox;
     var offset = renderBox.globalToLocal(offsetGlobal);
-    particles.forEach((particle) {
+    particles!.forEach((particle) {
       var delta = (Offset(particle.cx, particle.cy) - offset);
       if (delta.distanceSquared < 70 * 70) {
         var speed = particle.speed;
