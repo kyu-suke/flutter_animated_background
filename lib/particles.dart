@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -132,6 +133,8 @@ class ParticleOptions {
 
 /// Holds the information of a particle used in a [ParticleBehaviour].
 class Particle {
+  int rt = 0;
+
   /// The X coordinate of the center of this particle.
   double cx = 0.0;
 
@@ -212,6 +215,7 @@ abstract class ParticleBehaviour extends Behaviour {
 
   Rect? _particleImageSrc;
   ui.Image? _particleImage;
+  List<ui.Image?> _particleImages = List.filled(360, null);
   Function? _pendingConversion;
 
   Paint? _paint;
@@ -300,8 +304,40 @@ abstract class ParticleBehaviour extends Behaviour {
     return true;
   }
 
+  Future<ui.Image> rotatedImage(
+      {required ui.Image image, required double angle}) async {
+    var pictureRecorder = ui.PictureRecorder();
+    Canvas canvas = Canvas(pictureRecorder);
+
+    final double r =
+        sqrt(image.width * image.width + image.height * image.height) / 2;
+    final alpha = atan(image.height / image.width);
+    final beta = alpha + angle;
+    final shiftY = r * sin(beta);
+    final shiftX = r * cos(beta);
+    final translateX = image.width / 2 - shiftX;
+    final translateY = image.height / 2 - shiftY;
+    canvas.translate(translateX, translateY);
+    canvas.rotate(angle);
+    canvas.drawImage(image, Offset.zero, Paint());
+
+    return pictureRecorder.endRecording().toImage(image.width, image.height);
+  }
+
   @override
-  void paint(PaintingContext context, Offset offset) {
+  void paint(PaintingContext context, Offset offset) async {
+    // if (_particleImage != null) {
+    //   _particleImage = await rotatedImage(image: _particleImage!, angle: 1);
+    //   // rotatedImage(image: _particleImage!, angle: 1);
+    //   // rotatedImage(image: _particleImage!, angle: 1).then((value) {
+    //   //   // print("======");
+    //   //   // print(value);
+    //   //   // print("-------");
+    //   //   // canvas.drawImageRect(value, _particleImageSrc!, dst, _paint!);
+    //   //   // print(canvas);
+    //   // });
+    // }
+
     final Canvas canvas = context.canvas;
     for (Particle particle in particles!) {
       if (particle.alpha == 0.0) continue;
@@ -314,7 +350,17 @@ abstract class ParticleBehaviour extends Behaviour {
           particle.cx + particle.radius,
           particle.cy + particle.radius,
         );
-        canvas.drawImageRect(_particleImage!, _particleImageSrc!, dst, _paint!);
+
+        // print(_particleImage!);
+        // canvas.drawImageRect(_particleImage!, _particleImageSrc!, dst, _paint!);
+        // print(_particleImages);
+        canvas.drawImageRect(_particleImages[particle.rt] ?? _particleImage!, _particleImageSrc!, dst, _paint!);
+
+        // canvas.rotate(1);
+        // canvas.translate(particle.cx, particle.cy);
+        // canvas.rotate(particle.cx);
+        // canvas.translate(-particle.cx, -particle.cy);
+
       } else
         canvas.drawCircle(
           Offset(particle.cx, particle.cy),
@@ -342,6 +388,23 @@ abstract class ParticleBehaviour extends Behaviour {
 
   @protected
   void updateParticle(Particle particle, double delta, Duration elapsed) {
+    // if (_particleImage != null) {
+    //   print(_particleImage);
+    //   _particleImage = await rotatedImage(image: _particleImage!, angle: 90);
+    //   // rotatedImage(image: _particleImage!, angle: 1);
+    //   // rotatedImage(image: _particleImage!, angle: 1).then((value) {
+    //   //   // print("======");
+    //   //   // print(value);
+    //   //   // print("-------");
+    //   //   // canvas.drawImageRect(value, _particleImageSrc!, dst, _paint!);
+    //   //   // print(canvas);
+    //   // });
+    // }
+
+    particle.rt++;
+    if (particle.rt == 360) {
+      particle.rt=0;
+    }
     particle.cx += particle.dx * delta;
     particle.cy += particle.dy * delta;
     if (options.opacityChangeRate > 0 &&
@@ -373,7 +436,7 @@ abstract class ParticleBehaviour extends Behaviour {
 
   void _convertImage(Image image) async {
     if (_pendingConversion != null) _pendingConversion!();
-    _pendingConversion = convertImage(image, (ui.Image outImage) {
+    _pendingConversion = convertImage(image, (ui.Image outImage) async {
       _pendingConversion = null;
       _particleImageSrc = Rect.fromLTRB(
         0.0,
@@ -381,7 +444,16 @@ abstract class ParticleBehaviour extends Behaviour {
         outImage.width.toDouble(),
         outImage.height.toDouble(),
       );
+
+        final oi = await rotatedImage(image: outImage, angle: 1);
+
       _particleImage = outImage;
+      for (var i=0;i<360;i++) {
+        // print(i);
+        _particleImages[i] = await rotatedImage(image: outImage, angle: i.toDouble());
+      }
+      // print("aaaaaa");
+      // _particleImage = oi;
     });
   }
 }
