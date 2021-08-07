@@ -133,7 +133,7 @@ class ParticleOptions {
 
 /// Holds the information of a particle used in a [ParticleBehaviour].
 class Particle {
-  int rt = 0;
+  double angle = 0;
 
   /// The X coordinate of the center of this particle.
   double cx = 0.0;
@@ -215,7 +215,7 @@ abstract class ParticleBehaviour extends Behaviour {
 
   Rect? _particleImageSrc;
   ui.Image? _particleImage;
-  List<ui.Image?> _particleImages = List.filled(360, null);
+  List<ui.Image?> _particleImages = List.filled(360000, null);
   Function? _pendingConversion;
 
   Paint? _paint;
@@ -354,7 +354,7 @@ abstract class ParticleBehaviour extends Behaviour {
         // print(_particleImage!);
         // canvas.drawImageRect(_particleImage!, _particleImageSrc!, dst, _paint!);
         // print(_particleImages);
-        canvas.drawImageRect(_particleImages[particle.rt] ?? _particleImage!, _particleImageSrc!, dst, _paint!);
+        canvas.drawImageRect(_particleImages[particle.angle.toInt()] ?? _particleImage!, _particleImageSrc!, dst, _paint!);
 
         // canvas.rotate(1);
         // canvas.translate(particle.cx, particle.cy);
@@ -401,9 +401,9 @@ abstract class ParticleBehaviour extends Behaviour {
     //   // });
     // }
 
-    particle.rt++;
-    if (particle.rt == 360) {
-      particle.rt=0;
+    particle.angle += 10;
+    if (particle.angle.toInt() >= 360000) {
+      particle.angle=0;
     }
     particle.cx += particle.dx * delta;
     particle.cy += particle.dy * delta;
@@ -445,12 +445,11 @@ abstract class ParticleBehaviour extends Behaviour {
         outImage.height.toDouble(),
       );
 
-        final oi = await rotatedImage(image: outImage, angle: 1);
-
+        // final oi = await rotatedImage(image: outImage, angle: 1);
       _particleImage = outImage;
-      for (var i=0;i<360;i++) {
+      for (var i=0;i<360000;i++) {
         // print(i);
-        _particleImages[i] = await rotatedImage(image: outImage, angle: i.toDouble());
+        _particleImages[i] = await rotatedImage(image: outImage, angle: i.toDouble()/100);
       }
       // print("aaaaaa");
       // _particleImage = oi;
@@ -481,6 +480,8 @@ class RandomParticleBehaviour extends ParticleBehaviour {
   void initParticle(Particle p) {
     initPosition(p);
     initRadius(p);
+
+    p.angle = random.nextDouble();
 
     final double deltaSpeed = (options.spawnMaxSpeed - options.spawnMinSpeed);
     double speed = random.nextDouble() * deltaSpeed + options.spawnMinSpeed;
