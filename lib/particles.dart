@@ -134,6 +134,7 @@ class ParticleOptions {
 /// Holds the information of a particle used in a [ParticleBehaviour].
 class Particle {
   double angle = 0;
+  double rotateSpeed = 0;
 
   /// The X coordinate of the center of this particle.
   double cx = 0.0;
@@ -401,7 +402,7 @@ abstract class ParticleBehaviour extends Behaviour {
     //   // });
     // }
 
-    particle.angle += 10;
+    particle.angle += 10 * particle.rotateSpeed;
     if (particle.angle.toInt() >= 360000) {
       particle.angle=0;
     }
@@ -482,6 +483,7 @@ class RandomParticleBehaviour extends ParticleBehaviour {
     initRadius(p);
 
     p.angle = random.nextDouble();
+    p.rotateSpeed = random.nextDouble();
 
     final double deltaSpeed = (options.spawnMaxSpeed - options.spawnMinSpeed);
     double speed = random.nextDouble() * deltaSpeed + options.spawnMinSpeed;
