@@ -280,13 +280,15 @@ abstract class ParticleBehaviour extends Behaviour {
     ParticleOptions options = const ParticleOptions(),
     Paint? paint,
   }) {
+    print("AAAAAAAA");
     _options = options;
     this.particlePaint = paint;
     if (options.image != null) _convertImage(options.image!);
   }
 
   @override
-  void init() {
+  void init() async {
+    print("BBBBBBBB");
     particles = generateParticles(options.particleCount);
   }
 
@@ -342,18 +344,7 @@ abstract class ParticleBehaviour extends Behaviour {
   }
 
   @override
-  void paint(PaintingContext context, Offset offset) async {
-    // if (_particleImage != null) {
-    //   _particleImage = await rotatedImage(image: _particleImage!, angle: 1);
-    //   // rotatedImage(image: _particleImage!, angle: 1);
-    //   // rotatedImage(image: _particleImage!, angle: 1).then((value) {
-    //   //   // print("======");
-    //   //   // print(value);
-    //   //   // print("-------");
-    //   //   // canvas.drawImageRect(value, _particleImageSrc!, dst, _paint!);
-    //   //   // print(canvas);
-    //   // });
-    // }
+  void paint(PaintingContext context, Offset offset) {
 
     final Canvas canvas = context.canvas;
     for (Particle particle in particles!) {
@@ -367,17 +358,8 @@ abstract class ParticleBehaviour extends Behaviour {
           particle.cx + particle.radius,
           particle.cy + particle.radius,
         );
-
-        // print(_particleImage!);
-        // canvas.drawImageRect(_particleImage!, _particleImageSrc!, dst, _paint!);
-        // print(_particleImages);
+        // print(_particleImages[particle.angle.toInt()]);
         canvas.drawImageRect(_particleImages[particle.angle.toInt()] ?? _particleImage!, _particleImageSrc!, dst, _paint!);
-
-        // canvas.rotate(1);
-        // canvas.translate(particle.cx, particle.cy);
-        // canvas.rotate(particle.cx);
-        // canvas.translate(-particle.cx, -particle.cy);
-
       } else
         canvas.drawCircle(
           Offset(particle.cx, particle.cy),
@@ -405,25 +387,9 @@ abstract class ParticleBehaviour extends Behaviour {
 
   @protected
   void updateParticle(Particle particle, double delta, Duration elapsed) {
-    // if (_particleImage != null) {
-    //   print(_particleImage);
-    //   _particleImage = await rotatedImage(image: _particleImage!, angle: 90);
-    //   // rotatedImage(image: _particleImage!, angle: 1);
-    //   // rotatedImage(image: _particleImage!, angle: 1).then((value) {
-    //   //   // print("======");
-    //   //   // print(value);
-    //   //   // print("-------");
-    //   //   // canvas.drawImageRect(value, _particleImageSrc!, dst, _paint!);
-    //   //   // print(canvas);
-    //   // });
-    // }
 
     particle.angle += 10 * particle.rotateSpeed;
-    // print(particle.angle);
     if (particle.angle.toInt() >= 360000) {
-      print("====");
-      print(particle.angle);
-      print("====");
       particle.angle=0;
     }
 
@@ -466,15 +432,16 @@ abstract class ParticleBehaviour extends Behaviour {
         outImage.width.toDouble(),
         outImage.height.toDouble(),
       );
-
-        // final oi = await rotatedImage(image: outImage, angle: 1);
       _particleImage = outImage;
-      for (var i=0;i<360000;i++) {
-        // print(i);
-        _particleImages[i] = await rotatedImage(image: outImage, angle: i.toDouble()/100);
+
+      print(_particleImages[0]);
+      if (_particleImages[0] == null) {
+        print("=================");
+        for (var i = 0; i < 360000; i++) {
+          _particleImages[i] =
+          await rotatedImage(image: outImage, angle: i.toDouble() / 100);
+        }
       }
-      // print("aaaaaa");
-      // _particleImage = oi;
     });
   }
 }
