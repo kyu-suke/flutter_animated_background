@@ -53,6 +53,12 @@ class ParticleOptions {
   /// [ParticleBehaviour] used.
   final double spawnMaxSpeed;
 
+  /// TODO
+  final double spawnMinRotateSpeed;
+
+  /// TODO
+  final double spawnMaxRotateSpeed;
+
   /// The opacity of a spawned particle.
   final double spawnOpacity;
 
@@ -80,6 +86,8 @@ class ParticleOptions {
     this.spawnMaxRadius = 10.0,
     this.spawnMinSpeed = 150.0,
     this.spawnMaxSpeed = 300.0,
+    this.spawnMinRotateSpeed = 15.0,
+    this.spawnMaxRotateSpeed = 30.0,
     this.spawnOpacity = 0.0,
     this.minOpacity = 0.1,
     this.maxOpacity = 0.4,
@@ -98,6 +106,9 @@ class ParticleOptions {
         assert(spawnMaxSpeed >= spawnMinSpeed),
         assert(spawnMinSpeed >= 0.0),
         assert(spawnMaxSpeed >= 0.0),
+        assert(spawnMaxRotateSpeed >= spawnMinRotateSpeed),
+        assert(spawnMinRotateSpeed >= 0.0),
+        assert(spawnMaxRotateSpeed >= 0.0),
         assert(particleCount >= 0);
 
   /// Creates a copy of this [ParticleOptions] but with the given fields
@@ -109,6 +120,8 @@ class ParticleOptions {
     double? spawnMaxRadius,
     double? spawnMinSpeed,
     double? spawnMaxSpeed,
+    double? spawnMinRotateSpeed,
+    double? spawnMaxRotateSpeed,
     double? spawnOpacity,
     double? minOpacity,
     double? maxOpacity,
@@ -122,6 +135,8 @@ class ParticleOptions {
       spawnMaxRadius: spawnMaxRadius ?? this.spawnMaxRadius,
       spawnMinSpeed: spawnMinSpeed ?? this.spawnMinSpeed,
       spawnMaxSpeed: spawnMaxSpeed ?? this.spawnMaxSpeed,
+      spawnMinRotateSpeed: spawnMinRotateSpeed ?? this.spawnMinRotateSpeed,
+      spawnMaxRotateSpeed: spawnMaxRotateSpeed ?? this.spawnMaxRotateSpeed,
       spawnOpacity: spawnOpacity ?? this.spawnOpacity,
       minOpacity: minOpacity ?? this.minOpacity,
       maxOpacity: maxOpacity ?? this.maxOpacity,
@@ -134,6 +149,7 @@ class ParticleOptions {
 /// Holds the information of a particle used in a [ParticleBehaviour].
 class Particle {
   double angle = 0;
+
   double rotateSpeed = 0;
 
   /// The X coordinate of the center of this particle.
@@ -403,9 +419,14 @@ abstract class ParticleBehaviour extends Behaviour {
     // }
 
     particle.angle += 10 * particle.rotateSpeed;
+    // print(particle.angle);
     if (particle.angle.toInt() >= 360000) {
+      print("====");
+      print(particle.angle);
+      print("====");
       particle.angle=0;
     }
+
     particle.cx += particle.dx * delta;
     particle.cy += particle.dy * delta;
     if (options.opacityChangeRate > 0 &&
@@ -483,7 +504,11 @@ class RandomParticleBehaviour extends ParticleBehaviour {
     initRadius(p);
 
     p.angle = random.nextDouble();
-    p.rotateSpeed = random.nextDouble();
+    // p.rotateSpeed = random.nextDouble();
+    final double deltaRotateSpeed = (options.spawnMaxRotateSpeed - options.spawnMinRotateSpeed);
+    double rotateSpeed = random.nextDouble() * deltaRotateSpeed + options.spawnMinRotateSpeed;
+    p.rotateSpeed = rotateSpeed / 100;
+    // print(p.rotateSpeed);
 
     final double deltaSpeed = (options.spawnMaxSpeed - options.spawnMinSpeed);
     double speed = random.nextDouble() * deltaSpeed + options.spawnMinSpeed;
