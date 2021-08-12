@@ -280,7 +280,6 @@ abstract class ParticleBehaviour extends Behaviour {
     ParticleOptions options = const ParticleOptions(),
     Paint? paint,
   }) {
-    print("AAAAAAAA");
     _options = options;
     this.particlePaint = paint;
     if (options.image != null) _convertImage(options.image!);
@@ -288,7 +287,6 @@ abstract class ParticleBehaviour extends Behaviour {
 
   @override
   void init() async {
-    print("BBBBBBBB");
     particles = generateParticles(options.particleCount);
   }
 
@@ -340,12 +338,11 @@ abstract class ParticleBehaviour extends Behaviour {
     canvas.rotate(angle);
     canvas.drawImage(image, Offset.zero, Paint());
 
-    return pictureRecorder.endRecording().toImage(image.width, image.height);
+    return await pictureRecorder.endRecording().toImage(image.width, image.height);
   }
 
   @override
   void paint(PaintingContext context, Offset offset) {
-
     final Canvas canvas = context.canvas;
     for (Particle particle in particles!) {
       if (particle.alpha == 0.0) continue;
@@ -358,8 +355,17 @@ abstract class ParticleBehaviour extends Behaviour {
           particle.cx + particle.radius,
           particle.cy + particle.radius,
         );
+        // print(particle.angle);
         // print(_particleImages[particle.angle.toInt()]);
-        canvas.drawImageRect(_particleImages[particle.angle.toInt()] ?? _particleImage!, _particleImageSrc!, dst, _paint!);
+        // if (_particleImages[particle.angle.toInt()] == null) {
+        //   // print("a");
+        //   _convertRotateImage(particle.angle);
+        // }
+        canvas.drawImageRect(
+            _particleImages[particle.angle.toInt()] ?? _particleImage!,
+            _particleImageSrc!,
+            dst,
+            _paint!);
       } else
         canvas.drawCircle(
           Offset(particle.cx, particle.cy),
@@ -387,10 +393,9 @@ abstract class ParticleBehaviour extends Behaviour {
 
   @protected
   void updateParticle(Particle particle, double delta, Duration elapsed) {
-
     particle.angle += 10 * particle.rotateSpeed;
     if (particle.angle.toInt() >= 360000) {
-      particle.angle=0;
+      particle.angle = 0;
     }
 
     particle.cx += particle.dx * delta;
@@ -434,12 +439,10 @@ abstract class ParticleBehaviour extends Behaviour {
       );
       _particleImage = outImage;
 
-      print(_particleImages[0]);
       if (_particleImages[0] == null) {
-        print("=================");
         for (var i = 0; i < 360000; i++) {
           _particleImages[i] =
-          await rotatedImage(image: outImage, angle: i.toDouble() / 100);
+              await rotatedImage(image: outImage, angle: i.toDouble() / 100);
         }
       }
     });
@@ -472,8 +475,10 @@ class RandomParticleBehaviour extends ParticleBehaviour {
 
     p.angle = random.nextDouble();
     // p.rotateSpeed = random.nextDouble();
-    final double deltaRotateSpeed = (options.spawnMaxRotateSpeed - options.spawnMinRotateSpeed);
-    double rotateSpeed = random.nextDouble() * deltaRotateSpeed + options.spawnMinRotateSpeed;
+    final double deltaRotateSpeed =
+        (options.spawnMaxRotateSpeed - options.spawnMinRotateSpeed);
+    double rotateSpeed =
+        random.nextDouble() * deltaRotateSpeed + options.spawnMinRotateSpeed;
     p.rotateSpeed = rotateSpeed / 100;
     // print(p.rotateSpeed);
 
