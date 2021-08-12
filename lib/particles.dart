@@ -53,10 +53,16 @@ class ParticleOptions {
   /// [ParticleBehaviour] used.
   final double spawnMaxSpeed;
 
-  /// TODO
+  /// The minimum rotation speed of a spawned particle image. Changing this
+  /// value should cause the particles to update, in case their current speed is
+  /// smaller than the new value. The concrete effects depends on the instance
+  /// of [ParticleBehaviour] used.
   final double spawnMinRotateSpeed;
 
-  /// TODO
+  /// The maximum rotation speed of a spawned particle image. Changing this
+  /// value should cause the particles to update, in case their current speed is
+  /// bigger than the new value. The concrete effects depends on the instance of
+  /// [ParticleBehaviour] used.
   final double spawnMaxRotateSpeed;
 
   /// The opacity of a spawned particle.
@@ -86,8 +92,8 @@ class ParticleOptions {
     this.spawnMaxRadius = 10.0,
     this.spawnMinSpeed = 150.0,
     this.spawnMaxSpeed = 300.0,
-    this.spawnMinRotateSpeed = 15.0,
-    this.spawnMaxRotateSpeed = 30.0,
+    this.spawnMinRotateSpeed = 0.0,
+    this.spawnMaxRotateSpeed = 0.0,
     this.spawnOpacity = 0.0,
     this.minOpacity = 0.1,
     this.maxOpacity = 0.4,
@@ -148,10 +154,6 @@ class ParticleOptions {
 
 /// Holds the information of a particle used in a [ParticleBehaviour].
 class Particle {
-  double angle = 0;
-
-  double rotateSpeed = 0;
-
   /// The X coordinate of the center of this particle.
   double cx = 0.0;
 
@@ -177,6 +179,12 @@ class Particle {
 
   /// The target alpha of this particle.
   double targetAlpha = 0.0;
+
+  /// The rotational angle of this particle.
+  double rotationalAngle = 0;
+
+  /// The rotation speed of this particle.
+  double rotationalSpeed = 0;
 
   /// Dynamic data that can be used by [ParticleBehaviour] classes to store
   /// other information related to the particles.
@@ -286,7 +294,7 @@ abstract class ParticleBehaviour extends Behaviour {
   }
 
   @override
-  void init() async {
+  void init() {
     particles = generateParticles(options.particleCount);
   }
 
@@ -338,7 +346,9 @@ abstract class ParticleBehaviour extends Behaviour {
     canvas.rotate(angle);
     canvas.drawImage(image, Offset.zero, Paint());
 
-    return await pictureRecorder.endRecording().toImage(image.width, image.height);
+    return await pictureRecorder
+        .endRecording()
+        .toImage(image.width, image.height);
   }
 
   @override
@@ -355,14 +365,9 @@ abstract class ParticleBehaviour extends Behaviour {
           particle.cx + particle.radius,
           particle.cy + particle.radius,
         );
-        // print(particle.angle);
-        // print(_particleImages[particle.angle.toInt()]);
-        // if (_particleImages[particle.angle.toInt()] == null) {
-        //   // print("a");
-        //   _convertRotateImage(particle.angle);
-        // }
         canvas.drawImageRect(
-            _particleImages[particle.angle.toInt()] ?? _particleImage!,
+            _particleImages[particle.rotationalAngle.toInt()] ??
+                _particleImage!,
             _particleImageSrc!,
             dst,
             _paint!);
@@ -393,9 +398,9 @@ abstract class ParticleBehaviour extends Behaviour {
 
   @protected
   void updateParticle(Particle particle, double delta, Duration elapsed) {
-    particle.angle += 10 * particle.rotateSpeed;
-    if (particle.angle.toInt() >= 360000) {
-      particle.angle = 0;
+    particle.rotationalAngle += 10 * particle.rotationalSpeed;
+    if (particle.rotationalAngle.toInt() >= 360000) {
+      particle.rotationalAngle = 0;
     }
 
     particle.cx += particle.dx * delta;
@@ -473,14 +478,12 @@ class RandomParticleBehaviour extends ParticleBehaviour {
     initPosition(p);
     initRadius(p);
 
-    p.angle = random.nextDouble();
-    // p.rotateSpeed = random.nextDouble();
+    p.rotationalAngle = random.nextDouble();
     final double deltaRotateSpeed =
         (options.spawnMaxRotateSpeed - options.spawnMinRotateSpeed);
     double rotateSpeed =
         random.nextDouble() * deltaRotateSpeed + options.spawnMinRotateSpeed;
-    p.rotateSpeed = rotateSpeed / 100;
-    // print(p.rotateSpeed);
+    p.rotationalSpeed = rotateSpeed / 100;
 
     final double deltaSpeed = (options.spawnMaxSpeed - options.spawnMinSpeed);
     double speed = random.nextDouble() * deltaSpeed + options.spawnMinSpeed;
