@@ -365,6 +365,10 @@ abstract class ParticleBehaviour extends Behaviour {
           particle.cx + particle.radius,
           particle.cy + particle.radius,
         );
+
+        if (_particleImages[particle.rotationalAngle.toInt()] == null) {
+          particle.rotationalAngle = 0;
+        }
         canvas.drawImageRect(
             _particleImages[particle.rotationalAngle.toInt()] ??
                 _particleImage!,
@@ -444,11 +448,9 @@ abstract class ParticleBehaviour extends Behaviour {
       );
       _particleImage = outImage;
 
-      if (_particleImages[0] == null) {
-        for (var i = 0; i < 360000; i++) {
-          _particleImages[i] =
-              await rotatedImage(image: outImage, angle: i.toDouble() / 100);
-        }
+      for (var i = 0; i < 360000; i++) {
+        _particleImages[i] =
+            await rotatedImage(image: outImage, angle: i.toDouble() / 100);
       }
     });
   }
