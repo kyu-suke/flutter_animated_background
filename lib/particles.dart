@@ -240,7 +240,7 @@ abstract class ParticleBehaviour extends Behaviour {
 
   Rect? _particleImageSrc;
   ui.Image? _particleImage;
-  List<ui.Image?> _particleImages = List.filled(360000, null);
+  List<ui.Image?> _particleImages = List.filled(630, null);
   Function? _pendingConversion;
 
   Paint? _paint;
@@ -403,7 +403,7 @@ abstract class ParticleBehaviour extends Behaviour {
   @protected
   void updateParticle(Particle particle, double delta, Duration elapsed) {
     particle.rotationalAngle += 10 * particle.rotationalSpeed;
-    if (particle.rotationalAngle.toInt() >= 360000) {
+    if (particle.rotationalAngle.toInt() >= 630) {
       particle.rotationalAngle = 0;
     }
 
@@ -448,7 +448,7 @@ abstract class ParticleBehaviour extends Behaviour {
       );
       _particleImage = outImage;
 
-      for (var i = 0; i < 360000; i++) {
+      for (var i = 0; i < 630; i++) {
         _particleImages[i] =
             await rotatedImage(image: outImage, angle: i.toDouble() / 100);
       }
