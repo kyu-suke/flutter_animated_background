@@ -52,6 +52,8 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     maxOpacity: 0.4,
     spawnMinSpeed: 30.0,
     spawnMaxSpeed: 70.0,
+    spawnMinRotateSpeed: 10.0,
+    spawnMaxRotateSpeed: 20.0,
     spawnMinRadius: 7.0,
     spawnMaxRadius: 15.0,
     particleCount: 40,
@@ -357,6 +359,46 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
             },
           ),
           Text('${particleOptions.spawnMaxSpeed.toInt()}'),
+        ],
+      ),
+      Row(
+        children: <Widget>[
+          Text('Min rotate speed:'),
+          Slider(
+            value: particleOptions.spawnMinRotateSpeed,
+            min: 1.0,
+            max: 100.0,
+            divisions: 99,
+            onChanged: (value) {
+              setState(() {
+                particleOptions = particleOptions.copyWith(
+                  spawnMinRotateSpeed: value,
+                  spawnMaxRotateSpeed: math.max(particleOptions.spawnMaxRotateSpeed, value),
+                );
+              });
+            },
+          ),
+          Text('${particleOptions.spawnMinRotateSpeed.toInt()}'),
+        ],
+      ),
+      Row(
+        children: <Widget>[
+          Text('Max rotate speed:'),
+          Slider(
+            value: particleOptions.spawnMaxRotateSpeed,
+            min: 1.0,
+            max: 100.0,
+            divisions: 99,
+            onChanged: (value) {
+              setState(() {
+                particleOptions = particleOptions.copyWith(
+                  spawnMaxRotateSpeed: value,
+                  spawnMinRotateSpeed: math.min(particleOptions.spawnMinRotateSpeed, value),
+                );
+              });
+            },
+          ),
+          Text('${particleOptions.spawnMaxRotateSpeed.toInt()}'),
         ],
       ),
       SizedBox(height: 10.0),
